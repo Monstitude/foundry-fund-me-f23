@@ -14,6 +14,9 @@ contract FundMe is Ownable {
     mapping(address => uint256) private addressToAmountFunded;
     address[] private funders;
 
+    event Funded(address indexed funder, uint256 indexed fundAmount);
+    event Withdraw();
+
     uint256 public constant MINIMUM_USD = 5 * 1e18;
     AggregatorV3Interface public immutable i_dataFeed;
 
@@ -27,6 +30,7 @@ contract FundMe is Ownable {
 
         addressToAmountFunded[msg.sender] += msg.value;
         funders.push(msg.sender);
+        emit Funded(msg.sender, msg.value);
     }
 
     function cheaperWithdraw() public onlyOwner {
@@ -46,6 +50,7 @@ contract FundMe is Ownable {
             value: address(this).balance
         }("");
         if (!success) revert WithdrawUnsuccessful();
+        emit Withdraw();
     }
 
     function withdraw() public onlyOwner {
@@ -63,6 +68,7 @@ contract FundMe is Ownable {
             value: address(this).balance
         }("");
         if (!success) revert WithdrawUnsuccessful();
+        emit Withdraw();
     }
 
     function getFunder(uint256 idx) public view returns (address) {
